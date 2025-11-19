@@ -82,6 +82,10 @@ WARN[0000] /home/serkingofdbox/tmp/lab2/docker-compose.yml: the attribute `versi
 ```
 3) Проверка
 ```
+serkingofdbox@DESKTOP-5S32NBH:~/tmp/lab2$ curl -s http://api.localhost/healthz
+{"status":"ok"}serkingofdbox@DESKTOP-5S32NBH:~/tmp/lab2$ curl -s http://api.localhost/db
+{"db":1}serkingofdbox@DESKTOP-5S32NBH:~/tmp/lab2$ curl -s http://api.localhost/cache
+{"cache":"ok"}serkingofdbox@DESKTOP-5S32NBH:~/tmp/lab2$
 ```
 4) Состояние
 ```
@@ -93,4 +97,16 @@ lab2-api-1        lab2-api             "uvicorn app.main:ap…"   api        17 
 lab2-postgres-1   postgres:16-alpine   "docker-entrypoint.s…"   postgres   17 minutes ago   Up 17 minutes (healthy)
 lab2-redis-1      redis:7-alpine       "docker-entrypoint.s…"   redis      17 minutes ago   Up 17 minutes
 lab2-traefik-1    traefik:v3.1         "/entrypoint.sh --ap…"   traefik    17 minutes ago   Up 17 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+```
+5) Логи
+```
+serkingofdbox@DESKTOP-5S32NBH:~/tmp/lab2$ docker compose logs -f api
+WARN[0000] /home/serkingofdbox/tmp/lab2/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+api-1  | INFO:     Started server process [1]
+api-1  | INFO:     Waiting for application startup.
+api-1  | INFO:     Application startup complete.
+api-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+api-1  | INFO:     172.20.0.2:33454 - "GET /healthz HTTP/1.1" 200 OK
+api-1  | INFO:     172.20.0.2:37296 - "GET /db HTTP/1.1" 200 OK
+api-1  | INFO:     172.20.0.2:34042 - "GET /cache HTTP/1.1" 200 OK
 ```
