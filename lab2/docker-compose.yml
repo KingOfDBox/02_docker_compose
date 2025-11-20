@@ -1,19 +1,19 @@
-version: "3.9"
 services:
   traefik:
     image: traefik:v3.1
     command:
-      - --api.dashboard=true
       - --providers.docker=true
+      - --api.dashboard=true
       - --entrypoints.web.address=:80
     ports:
       - "80:80"
-    networks: [public]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [public]
     labels:
-      - traefik.http.routers.traefik.rule=Host(`traefik.localhost`)
-      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)
+      - traefik.http.routers.dashboard.entrypoints=web
+      - traefik.http.routers.dashboard.service=api@internal
 
   api:
     build: .
@@ -26,7 +26,8 @@ services:
     networks: [public, backend]
     labels:
       - traefik.http.routers.api.rule=Host(`api.localhost`)
-      - traefik.http.services.api.loadbalancer.server.port=8000
+      - traefik.http.routers.api.entrypoints=web
+      - traefik.http.services.api.loadbalancer.server.port=8080
 
   postgres:
     image: postgres:16-alpine
@@ -34,12 +35,12 @@ services:
       POSTGRES_USER: app
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: appdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U app"]
       interval: 5s
       retries: 10
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     networks: [backend]
 
   redis:
@@ -51,6 +52,8 @@ services:
     networks: [public, backend]
     labels:
       - traefik.http.routers.adminer.rule=Host(`adminer.localhost`)
+      - traefik.http.routers.adminer.entrypoints=web
+      - traefik.http.services.adminer.loadbalancer.server.port=8080
 
 networks:
   public:
